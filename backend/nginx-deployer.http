@@ -1,0 +1,6 @@
+@nginx_deployer_HostAddress = http://localhost:5057
+
+GET {{nginx_deployer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
