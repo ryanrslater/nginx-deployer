@@ -13,9 +13,9 @@ namespace nginx_deployer.Services
         {
             ConnectionFactory factory = new()
             {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest",
+                HostName = "rabbitmq",
+                UserName = "user",
+                Password = "password",
                 Port = 5672
             };
 
@@ -26,7 +26,7 @@ namespace nginx_deployer.Services
             }
             catch (Exception ex)
             {
-                
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }
@@ -52,7 +52,7 @@ namespace nginx_deployer.Services
             }
             catch (Exception ex)
             {
-       
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }

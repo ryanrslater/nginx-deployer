@@ -1,94 +1,49 @@
 version: '3.8'
 
 services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: insurance_rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
-    restart: always
-    networks:
-      - insurance_network
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: deployer_rabbitmq
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+        environment:
+            RABBITMQ_DEFAULT_USER: user
+            RABBITMQ_DEFAULT_PASS: password
+        restart: always
+        networks:
+            - deployer_network
 
-  insurance_db:
-    image: postgres
-    restart: always
-    shm_size: 128mb
-    volumes:
-      - type: tmpfs
-        target: /dev/shm
-        tmpfs:
-          size: 134217728 # 128*2^20 bytes = 128Mb
-    environment:
-      POSTGRES_PASSWORD: example
-    networks:
-      - insurance_network
+    fontend:
+        container_name: deployer_frontend
+        build:
+            context: ./frontend
+        ports:
+            - '80:80'
+        networks:
+            - deployer_network
+        depends_on:
+            - deploy_api
+        restart: always
 
-  insurance_api:
-    container_name: insurance_api
-    build:
-      context: ./InsuranceBuilderPro
-    ports:
-      - "5001:5001"
-    networks:
-      - insurance_network
+    deploy_api:
+        container_name: deployer_api
+        build:
+            context: ./backend
+        ports:
+            - '5001:5001'
+        networks:
+            - deployer_network
 
-  insurance_client:
-    container_name: insurance_client
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    ports:
-      - "5173:5173"
-    networks:
-      - insurance_network
-
-  swms:
-    container_name: swms
-    build:
-      context: ./pdf/swms
-    networks:
-      - insurance_network
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  report:
-    container_name: report
-    build:
-      context: ./pdf/report
-    networks:
-      - insurance_network
-    depends_on:
-      - rabbitmq
-    restart: always
-
-  scope:
-    container_name: scope
-    build:
-      context: ./pdf/scope
-    networks:
-      - insurance_network
-    depends_on:
-      - rabbitmq
-    restart: always
-    
-  nginx:
-    image: nginx:latest
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "80:80"
-    depends_on:
-      - insurance_api
-      - insurance_client
-    networks:
-      - insurance_network
-    restart: always
+    deploy_queue:
+        container_name: deploy_queue
+        build:
+            context: ./queue/deploy
+        networks:
+            - deployer_network
+        depends_on:
+            - rabbitmq
+        restart: always
 
 networks:
-  insurance_network:
+    deployer_network:

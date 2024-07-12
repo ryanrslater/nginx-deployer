@@ -1,7 +1,11 @@
 import amqp from 'amqplib'
 import AWS from 'aws-sdk'
 
-const connectionstring = 'amqp://localhost'
+const user = 'user'
+const password = 'password'
+const rabbithost = 'rabbitmq'
+
+const connectionstring = `amqp://${user}:${password}@${rabbithost}`
 
 const queueName = 'deploy'
 
